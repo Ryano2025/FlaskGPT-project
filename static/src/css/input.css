@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+#gpt-output > div {
+    @apply mb-6 flex flex-col;
+}
+#gpt-output {
+    scroll-behavior: smooth; /* Rend le défilement fluide */
+}
+
+/* 1. Message Utilisateur (Impair / Odd) -> Gris Moderne */
+#gpt-output > div:nth-child(odd) {
+    @apply items-end; /* Aligne la bulle à droite */
+}
+#gpt-output > div:nth-child(odd) .message {
+    @apply bg-gray-200 text-gray-800 rounded-2xl rounded-tr-none px-4 py-3 max-w-[80%];
+}
+
+/* 2. Message IA (Pair / Even) -> Noir Moderne */
+#gpt-output > div:nth-child(even) {
+    @apply items-start; /* Aligne la bulle à gauche */
+}
+#gpt-output > div:nth-child(even) .message {
+    @apply bg-black text-white rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%];
+}
+code {
+    @apply font-mono text-sm px-1 py-0.5;
+}
+.btn-primary {
+    @apply bg-blue-500 text-white font-bold py-2 px-4 rounded-r hover:bg-blue-700 transition;
+}
+
+
+pre {
+    @apply py-4 font-mono overflow-x-auto;
+}
+
+
+:not(pre) > code {
+    @apply font-mono text-fuchsia-400 italic font-bold;
+}
