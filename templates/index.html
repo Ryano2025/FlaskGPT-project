@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width , initial-scale=1.0 ,shrink-to-fit=no">
+    <title>FlaskGPT - Professional AI Assistant</title>
+    
+    <!-- shadcn/ui inspired -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Highlight.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(214.3 31.8% 91.4%)",
+                        input: "hsl(214.3 31.8% 91.4%)",
+                        ring: "hsl(222.2 84% 61.8%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(222.2 84% 4.9%)",
+                        primary: {
+                            DEFAULT: "hsl(222.2 47.4% 11.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(215.4 16.3% 46.9%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(210 40% 96.1%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(210 40% 98%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        },
+                        popover: {
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(222.2 84% 4.9%)",
+                        }
+                    },
+                    borderRadius: {
+                        lg: "var(--radius)",
+                        md: "calc(var(--radius) - 2px)",
+                        sm: "calc(var(--radius) - 4px)"
+                    },
+                    fontFamily: {
+                        sans: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --background: 0 0% 100%;
+            --foreground: 222.2 84% 4.9%;
+            --card: 0 0% 100%;
+            --card-foreground: 222.2 84% 4.9%;
+            --popover: 0 0% 100%;
+            --popover-foreground: 222.2 84% 4.9%;
+            --primary: 222.2 47.4% 11.2%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96.1%;
+            --secondary-foreground: 222.2 84% 4.9%;
+            --muted: 210 40% 96.1%;
+            --muted-foreground: 215.4 16.3% 46.9%;
+            --accent: 210 40% 96.1%;
+            --accent-foreground: 222.2 84% 4.9%;
+            --destructive: 0 84.2% 60.2%;
+            --destructive-foreground: 210 40% 98%;
+            --border: 214.3 31.8% 91.4%;
+            --input: 214.3 31.8% 91.4%;
+            --ring: 222.2 84% 61.8%;
+            --radius: 0.5rem;
+        }
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: hsl(var(--background));
+            color: hsl(var(--foreground));
+        }
+        
+        .message-enter {
+            animation: messageEnter 0.3s ease-out;
+        }
+        
+        @keyframes messageEnter {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .typing-dots {
+            display: inline-flex;
+            gap: 4px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: hsl(var(--muted-foreground));
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-8px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground">
+<div class="flex h-screen">
+    <!-- Main Content Only -->
+    <div class="flex-1 flex flex-col bg-background">
+        <!-- Simple Header with Reset Button -->
+        <div class="border-b border-border bg-card px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <img src="{{ url_for('static',filename='logo (3).png') }}" alt="FlaskGPT Logo" class="w-12 h-12 rounded-lg">
+                    <div>
+                        <h1 class="text-lg font-semibold">FlaskGPT</h1>
+                        <p class="text-sm text-muted-foreground">Professional AI Assistant</p>
+                    </div>
+                </div>
+                
+                <button onclick="startNewChat()" class="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium transition-colors flex items-center gap-2">
+                    <i class="fas fa-refresh"></i>
+                    Reset Chat
+                </button>
+            </div>
+        </div>
+        
+        <div id="gpt-output" class="flex-1 overflow-y-auto p-6 flex flex-col items-center">
+            <!-- Welcome Screen -->
+            <div class="flex flex-col items-center justify-center h-full text-center max-w-5xl w-full">
+                <div class="mb-8">
+                    <img src="{{ url_for('static',filename='logo (3).png') }}" alt="FlaskGPT Logo" class="w-48 h-48">
+                </div>
+                <h1 class="text-3xl font-bold mb-2">Welcome to FlaskGPT</h1>
+                <p class="text-muted-foreground mb-8 max-w-md">Your professional AI assistant powered by Google Gemini. Ask me anything, from coding help to creative writing.</p>
+                
+                <div class="flex flex-wrap gap-2 justify-center max-w-lg">
+                    <button onclick="setPrompt('Help me write a Python function to...')" class="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-full text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-code text-xs"></i>
+                        Code Help
+                    </button>
+                    <button onclick="setPrompt('Explain machine learning concepts...')" class="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-full text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-brain text-xs"></i>
+                        Learn ML
+                    </button>
+                    <button onclick="setPrompt('Help me debug this error...')" class="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-full text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-bug text-xs"></i>
+                        Debug Code
+                    </button>
+                    <button onclick="setPrompt('Write a story about...')" class="px-4 py-2 bg-secondary hover:bg-secondary/80 rounded-full text-sm font-medium transition-colors flex items-center gap-2">
+                        <i class="fas fa-pen text-xs"></i>
+                        Creative Writing
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="border-t border-border bg-card p-4">
+            <form id="prompt-form" class="max-w-5xl mx-auto">
+                <div class="flex items-end gap-2 bg-background border border-input rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-ring focus-within:border-input">
+                    <textarea 
+                        name="prompt" 
+                        id="prompt" 
+                        class="flex-1 bg-transparent border-0 outline-none resize-none text-foreground placeholder-muted-foreground min-h-[24px] max-h-32"
+                        placeholder="Type your message here..."
+                        rows="1"
+                    ></textarea>
+                    <div class="flex items-center gap-1">
+                        <button type="submit" class="w-8 h-8 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 flex items-center justify-center transition-colors" id="send-button">
+                            <i class="fas fa-paper-plane text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Hidden template for messages -->
+<div id="chat-template" class="hidden">
+    <div class="flex gap-6 w-full max-w-5xl message-enter mb-8">
+        <div class="w-8 h-8 rounded-md flex items-center justify-center text-sm flex-shrink-0"></div>
+        <div class="bg-card border border-border rounded-lg px-5 py-4" style="min-width: 300px; max-width: 800px;">
+            <div class="text-sm leading-relaxed"></div>
+        </div>
+    </div>
+</div>
+ <script src="https://unpkg.com/showdown/dist/showdown.min.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.2.0/highlight.min.js"></script>
+<script  src="{{ url_for('static',filename='dist/js/script.js') }}"></script>
+</body>
+</html>

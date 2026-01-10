@@ -1,0 +1,31 @@
+from flask import Flask, render_template, request, Response
+import os
+from dotenv import load_dotenv
+from google import generativeai as genai
+
+app=Flask(__name__)
+load_dotenv()
+GOOGLE_API_KEY=os.getenv("GOOGLE_API_KEY")
+genai.configure(api_key=GOOGLE_API_KEY)
+
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+@app.route("/prompt",methods=["POST"])
+def prompt():
+    message=request.json["messages"]
+    return Response(event_stream(message),mimetype="text/event-stream")
+
+
+def event_stream(conversation):
+    model=genai.GenerativeModel("gemini-2.5-flash")
+    response=model.generate_content(conversation,stream=True)
+    for chunk in response:
+        if chunk.candidates:
+            text=chunk.candidates[0].content.parts[0].text
+            if len(text):
+                yield text
+
+if __name__=="__main__":
+    app.run(debug=True,host="127.0.0.1",port=5000)
