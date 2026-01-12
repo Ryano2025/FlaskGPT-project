@@ -1,11 +1,15 @@
+from operator import truediv
+
 from flask import Flask, render_template, request, Response
 import os
 from dotenv import load_dotenv
 from google import generativeai as genai
+from pyexpat.errors import messages
+from torch.cpu import Stream
 
 app=Flask(__name__)
 load_dotenv()
-GOOGLE_API_KEY=os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY=os.getenv("OPEN_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
 
 
@@ -28,4 +32,4 @@ def event_stream(conversation):
                 yield text
 
 if __name__=="__main__":
-    app.run(debug=True,host="127.0.0.1",port=5000)
+    app.run(debug=True,host="0.0.0.0",port=5000)
