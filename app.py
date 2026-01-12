@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from google import generativeai as genai
 from pyexpat.errors import messages
-from torch.cpu import Stream
+
 
 app=Flask(__name__)
 load_dotenv()
